@@ -1,12 +1,14 @@
 <script lang="ts">
 import { ref } from 'vue';
 import History from './History.vue';
+import { FORM_ID } from './calculator';
 
 export default {
   components: { History },
   setup() {
     const display = ref('');
     const calculate = (value: string) => {
+      console.log(value);
       display.value = value;
     };
     return {
@@ -20,19 +22,18 @@ export default {
 
 <template>
   <div class="container">
-    <History :form-id="FORM_ID" @submit.prevent="calculate" />
     <div class="footer">
-      <button :form="FORM_ID" type="submit">
-        calculate
+      <button :form="FORM_ID" type="submit" class="primary">
+        =
       </button>
       <div class="display">{{ display }}</div>
     </div>
+    <History @submit.prevent="calculate" />
   </div>
 </template>
 
 <style scoped>
 .container {
-  max-width: 360px;
   background-color: #264653;
   border-radius: 10px;
   padding: 20px;
@@ -40,13 +41,14 @@ export default {
 }
 .footer {
   display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 .display {
-  width: 100%;
   height: 56px;
+  width: 100%;
   font-size: 20px;
   text-align: right;
-  margin-bottom: 10px;
   padding: 20px;
   border-radius: 5px;
   color: #e0e1dd;
@@ -63,5 +65,36 @@ body {
   align-items: center;
   justify-content: center;
   background: #bf4d5d;
+}
+button {
+  width: calc(100% / 5);
+  height: 60px;
+  margin: 10px 5px;
+  border-radius: 10px;
+  background-color: #264653;
+  color: #e0e1dd;
+  font-size: 21px;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.1);
+}
+button:focus {
+  outline: none;
+}
+button.primary {
+  color: #2a9d8f;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
