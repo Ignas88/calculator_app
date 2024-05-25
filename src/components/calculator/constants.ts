@@ -13,9 +13,5 @@ export const numbers = [
   { value: '00' },
   { value: '000' },
 ];
-export const operators = [
-  { value: '-', type: 'operator' },
-  { value: '+', type: 'operator' },
-  { value: '*', type: 'operator' },
-  { value: '/', type: 'operator' },
-];
+export const operators = ['-', '+', '*', '/'];
+export const mathTestRegExp = /(?:(?:^|[-+_*/])(?:\s*-?\d+(\.\d+)?(?:[eE][+-]?\d+)?\s*))+$/;

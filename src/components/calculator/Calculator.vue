@@ -1,46 +1,59 @@
-<script lang="ts">
-import { ref } from 'vue';
-import { numbers, operators, FORM_ID } from './constants';
+<script setup lang="ts">
+import {
+  ref, defineEmits, defineExpose,
+} from 'vue';
+import {
+  numbers, operators, FORM_ID, mathTestRegExp,
+} from './constants';
 
-export default {
-  setup() {
-    const display = ref('');
-    function updateDisplay(value: string|number) {
-      // if (value === 'AC') {
-      //   return display.value = '';
-      // }
-      // if (value === 'DEL') {
-      //   return display.value = display.value.slice(0, -1);
-      // }
-      display.value += value;
-    }
-
-    return {
-      display,
-      numbers,
-      operators,
-      updateDisplay,
-      FORM_ID,
-    };
-  },
-};
+const display = ref('');
+const emit = defineEmits<{change: [value: string], submit: [operation: string, value?: string]}>();
+function update(value: string|number) {
+  display.value += value;
+  emit('change', display.value);
+}
+function clear() {
+  display.value = '';
+  emit('change', display.value);
+}
+function deleteLast() {
+  display.value = display.value.slice(0, -1);
+  emit('change', display.value);
+}
+function handleSubmit() {
+  const isWithOperator = operators.some((operator) => display.value.includes(operator));
+  if (!isWithOperator) {
+    emit('submit', display.value);
+    return;
+  }
+  const isValidMathExpression = mathTestRegExp.test(display.value);
+  if (!isValidMathExpression) return;
+  // eslint-disable-next-line no-eval
+  const result = `${eval(display.value)}`;
+  emit('submit', display.value, result);
+  display.value = '';
+}
+defineExpose({ clear, deleteLast });
 </script>
 
 <template>
-  <form :id="FORM_ID" class="calculator">
-    <input type="text" v-model="display" disabled />
-
+  <form :id="FORM_ID" class="calculator" @submit.prevent="handleSubmit">
     <div class="numbers">
       <button
           v-for="{ value } in numbers"
           :key="value"
-          @click.prevent="updateDisplay(value)"
+          @click.prevent="update(value)"
       >
         {{ value }}
       </button>
     </div>
     <div class="operators">
-      <button v-for="{ value } in operators" :key="value" @click.prevent="updateDisplay(value)">
+      <button
+          v-for="value in operators"
+          :key="value"
+          @click.prevent="update(value)"
+          class="primary"
+      >
         {{ value }}
       </button>
     </div>
@@ -48,9 +61,6 @@ export default {
 </template>
 
 <style scoped>
-input {
-  display: none;
-}
 .calculator {
   display: flex;
   height: 320px;
@@ -65,10 +75,6 @@ input {
 .operators{
   display: flex;
   flex-direction: column;
-}
-
-.button_clear {
-  color: #e76f51;
 }
 
 @media only screen and (max-width: 426px) {

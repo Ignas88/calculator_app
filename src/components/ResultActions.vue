@@ -1,23 +1,12 @@
-<script lang="ts">
+<script setup lang="ts">
 import { ref } from 'vue';
 import History from './History.vue';
 import { FORM_ID } from './calculator';
 
-export default {
-  components: { History },
-  setup() {
-    const display = ref('');
-    const calculate = (value: string) => {
-      console.log(value);
-      display.value = value;
-    };
-    return {
-      calculate,
-      display,
-      FORM_ID,
-    };
-  },
-};
+const display = ref('');
+function handleChange(value: string) {
+  display.value = value;
+}
 </script>
 
 <template>
@@ -26,9 +15,9 @@ export default {
       <button :form="FORM_ID" type="submit" class="primary">
         =
       </button>
-      <div class="display">{{ display }}</div>
+      <div class="display"><span>{{ display }}</span></div>
     </div>
-    <History @submit.prevent="calculate" />
+    <History @change="handleChange" />
   </div>
 </template>
 
@@ -48,13 +37,14 @@ export default {
   height: 56px;
   width: 100%;
   font-size: 20px;
-  text-align: right;
   padding: 20px;
   border-radius: 5px;
   color: #e0e1dd;
   background-color: rgba(13, 27, 42, 0.3);
-  border: none;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 </style>
 
@@ -91,6 +81,9 @@ button:focus {
 }
 button.primary {
   color: #2a9d8f;
+}
+button.error {
+  color: #e76f51;
 }
 .footer {
   display: flex;
