@@ -6,24 +6,21 @@ const emit = defineEmits<{change: [value: string]}>();
 const historyList = ref<Calculation[]>([]);
 const counterRef = ref<InstanceType<typeof Calculator> | null>(null);
 
-function handleChange(value: string) {
-  emit('change', value);
-}
-function handleSubmit(calculations: Calculation[]) {
-  if (calculations.length > 0) {
-    historyList.value = calculations;
-  }
-}
 function handleClear() {
   counterRef?.value?.clear();
 }
+function handleClearLastEntry() {
+  counterRef?.value?.clearLastEntry();
+}
 watch(
   () => counterRef?.value?.display,
-  (value) => handleChange(value || ''),
+  (value) => emit('change', value || ''),
 );
 watch(
   () => counterRef?.value?.calculations,
-  (calculations) => calculations?.length && handleSubmit(calculations),
+  (calculations) => {
+    if (calculations?.length) historyList.value = calculations;
+  },
 );
 </script>
 
@@ -31,13 +28,16 @@ watch(
   <div>
     <div class="container">
       <Calculator ref="counterRef" />
-      <div class="display">
-        <div
-            v-for="{ operation, value } in historyList"
-            :key="operation"
-            class="display-entry"
-        >
-          <span>{{ operation }}</span><span v-if="value"> = {{ value }}</span>
+      <div>
+        <button @click.prevent="handleClearLastEntry" class="error small">{{ "&lt;--" }}</button>
+        <div class="display">
+          <div
+              v-for="{ operation, value } in historyList"
+              :key="operation"
+              class="display-entry"
+          >
+            <span>{{ operation }}</span><span v-if="value"> = {{ value }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@ watch(
   width: 100%;
 }
 .display {
-  height: 320px;
+  height: 260px;
   width: 160px;
   font-size: 20px;
   text-align: left;
@@ -67,12 +67,17 @@ watch(
   color: #e0e1dd;
   background-color: rgba(13, 27, 42, 0.3);
   box-sizing: border-box;
-  margin-top: 10px;
   overflow-x: scroll;
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
   justify-content: flex-end;
+}
+.small {
+  width: 100%;
+  margin: 10px 0 10px 0;
+  font-size: 15px;
+  height: 30px;
 }
 .display-entry {
   font-size: 13px;

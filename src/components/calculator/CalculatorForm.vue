@@ -14,6 +14,12 @@ function update(value: string) {
 function clear() {
   display.value = '';
 }
+function clearLastEntry() {
+  const lastIndex = calculations.value.length - 1;
+  const withoutLast = calculations.value.filter((_entry, index) => index !== lastIndex);
+  calculations.value = [...withoutLast];
+  display.value = withoutLast?.pop()?.value ?? '';
+}
 function clearLastChar() {
   display.value = display.value.slice(0, -1);
 }
@@ -30,7 +36,9 @@ function handleSubmit() {
   calculations.value = [...calculations.value, { operation, value }];
   display.value = value;
 }
-defineExpose({ clear, display, calculations });
+defineExpose({
+  clear, clearLastEntry, display, calculations,
+});
 </script>
 
 <template>
