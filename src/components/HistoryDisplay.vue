@@ -4,20 +4,26 @@ import { Calculator, type Calculation } from './calculator';
 
 const emit = defineEmits<{change: [value: string]}>();
 const historyList = ref<Calculation[]>([]);
-const counterRef = ref<InstanceType<typeof Calculator> | null>(null);
+const calculatorRef = ref<InstanceType<typeof Calculator> | null>(null);
 
 function handleClear() {
-  counterRef?.value?.clear();
+  calculatorRef?.value?.clear();
 }
 function handleClearLastEntry() {
-  counterRef?.value?.clearLastEntry();
+  calculatorRef?.value?.clearLastEntry();
+}
+function handleExport() {
+  calculatorRef?.value?.exportCalculations();
+}
+function handleImport() {
+  calculatorRef?.value?.importCalculations();
 }
 watch(
-  () => counterRef?.value?.display,
+  () => calculatorRef?.value?.display,
   (value) => emit('change', value || ''),
 );
 watch(
-  () => counterRef?.value?.calculations,
+  () => calculatorRef?.value?.calculations,
   (calculations) => {
     if (Array.isArray(calculations)) {
       historyList.value = calculations;
@@ -29,9 +35,12 @@ watch(
 <template>
   <div>
     <div class="container">
-      <Calculator ref="counterRef" />
+      <calculator ref="calculatorRef" />
       <div class="display-container">
-        <button @click.prevent="handleClearLastEntry" class="error small">{{ "&lt;--" }}</button>
+        <div class="row">
+          <button @click.prevent="handleClear" class="error small">AC</button>
+          <button @click.prevent="handleClearLastEntry" class="error small">{{ "&lt;--" }}</button>
+        </div>
         <div class="display">
           <div
               v-for="{ operation, value } in historyList"
@@ -44,9 +53,8 @@ watch(
       </div>
     </div>
     <div class="row">
-      <button @click.prevent="handleClear" class="error">AC</button>
-      <button>import</button>
-      <button>export</button>
+      <button @click.prevent="handleImport">import</button>
+      <button @click.prevent="handleExport">export</button>
     </div>
   </div>
 </template>
@@ -63,7 +71,7 @@ watch(
   margin-top: 10px;
 }
 .display {
-  height: 260px;
+  height: 240px;
   width: 160px;
   font-size: 20px;
   text-align: left;

@@ -4,6 +4,7 @@ import {
   numbers, operators, FORM_ID, mathTestRegExp,
 } from './constants';
 import { type Calculation } from './types';
+import { download } from './utils';
 
 const display = ref('');
 const calculations = ref<Calculation[]>([]);
@@ -21,7 +22,7 @@ function clearLastEntry() {
 function clearLastChar() {
   display.value = display.value.slice(0, -1);
 }
-function handleSubmit() {
+function submit() {
   const operation = display.value;
   const isWithOperator = operators.some((operator) => operation.includes(operator));
   if (!isWithOperator) {
@@ -33,6 +34,12 @@ function handleSubmit() {
   const value = `${eval(operation)}`;
   calculations.value = [...calculations.value, { operation, value }];
 }
+function exportCalculations() {
+  download(calculations.value);
+}
+function importCalculations() {
+
+}
 watch(
   () => calculations.value[calculations.value.length - 1],
   (lastEntry: Calculation) => {
@@ -40,33 +47,38 @@ watch(
   },
 );
 defineExpose({
-  clear, clearLastEntry, display, calculations,
+  submit, clear, clearLastEntry, exportCalculations, importCalculations, display, calculations,
 });
 </script>
 
 <template>
-  <form :id="FORM_ID" class="calculator" @submit.prevent="handleSubmit">
-    <div class="numbers">
-      <button
-          v-for="{ value } in numbers"
-          :key="value"
-          @click.prevent="update(value)"
-      >
-        {{ value }}
-      </button>
-      <button @click.prevent="clearLastChar" class="error">DEL</button>
+  <div>
+    <form :id="FORM_ID" class="calculator" @submit.prevent="submit">
+      <div class="numbers">
+        <button
+            v-for="{ value } in numbers"
+            :key="value"
+            @click.prevent="update(value)"
+        >
+          {{ value }}
+        </button>
+        <button @click.prevent="clearLastChar" class="error">DEL</button>
+      </div>
+      <div class="operators">
+        <button
+            v-for="value in operators"
+            :key="value"
+            @click.prevent="update(value)"
+            class="primary"
+        >
+          {{ value }}
+        </button>
+      </div>
+    </form>
+    <div>
+
     </div>
-    <div class="operators">
-      <button
-          v-for="value in operators"
-          :key="value"
-          @click.prevent="update(value)"
-          class="primary"
-      >
-        {{ value }}
-      </button>
-    </div>
-  </form>
+  </div>
 </template>
 
 <style scoped>
