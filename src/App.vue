@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ResultActions from './components/ResultActions.vue';
+import ResultActions from '@components/ResultActions.vue';
 </script>
 
 <template>

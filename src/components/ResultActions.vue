@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import HistoryDisplay from './HistoryDisplay.vue';
-import { FORM_ID } from './calculator';
+import HistoryDisplay from '@components/HistoryDisplay.vue';
+import { FORM_ID } from '@commons/calculator';
 
 const display = ref('');
 function handleChange(value: string) {

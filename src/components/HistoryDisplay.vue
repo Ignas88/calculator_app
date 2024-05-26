@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { Calculator, type Calculation } from './calculator';
+import { Calculator, type Calculation } from '@commons/calculator';
 
 const emit = defineEmits<{change: [value: string]}>();
 const historyList = ref<Calculation[]>([]);
