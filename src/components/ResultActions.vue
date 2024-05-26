@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import History from './History.vue';
+import HistoryDisplay from './HistoryDisplay.vue';
 import { FORM_ID } from './calculator';
 
 const display = ref('');
@@ -17,7 +17,7 @@ function handleChange(value: string) {
       </button>
       <div class="display"><span>{{ display }}</span></div>
     </div>
-    <History @change="handleChange" />
+    <history-display @change="handleChange" />
   </div>
 </template>
 

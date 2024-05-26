@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import {
-  ref, defineEmits, defineExpose,
-} from 'vue';
+import { ref } from 'vue';
 import {
   numbers, operators, FORM_ID, mathTestRegExp,
 } from './constants';
+import { type Calculation } from './types';
 
 const display = ref('');
-const emit = defineEmits<{change: [value: string], submit: [operation: string, value?: string]}>();
+const calculations = ref<Calculation[]>([]);
+const emit = defineEmits<{change: [value: string], submit: [value: string]}>();
 function update(value: string|number) {
   display.value += value;
   emit('change', display.value);
@@ -16,24 +16,28 @@ function clear() {
   display.value = '';
   emit('change', display.value);
 }
-function deleteLast() {
+function clearLast() {
   display.value = display.value.slice(0, -1);
   emit('change', display.value);
 }
 function handleSubmit() {
-  const isWithOperator = operators.some((operator) => display.value.includes(operator));
+  const operation = display.value;
+  let value = null;
+  const isWithOperator = operators.some((operator) => operation.includes(operator));
   if (!isWithOperator) {
-    emit('submit', display.value);
+    calculations.value.push({ operation, value });
+    emit('submit', operation);
     return;
   }
-  const isValidMathExpression = mathTestRegExp.test(display.value);
+  const isValidMathExpression = mathTestRegExp.test(operation);
   if (!isValidMathExpression) return;
   // eslint-disable-next-line no-eval
-  const result = `${eval(display.value)}`;
-  emit('submit', display.value, result);
+  value = `${eval(operation)}`;
+  calculations.value.push({ operation, value });
+  emit('submit', value);
   display.value = '';
 }
-defineExpose({ clear, deleteLast });
+defineExpose({ clear, calculations });
 </script>
 
 <template>
@@ -46,6 +50,7 @@ defineExpose({ clear, deleteLast });
       >
         {{ value }}
       </button>
+      <button @click.prevent="clearLast" class="error">DEL</button>
     </div>
     <div class="operators">
       <button

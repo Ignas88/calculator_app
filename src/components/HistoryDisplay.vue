@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue';
-import { Calculator, operators } from './calculator';
+import { ref } from 'vue';
+import { Calculator, type Calculation } from './calculator';
 
 const emit = defineEmits<{change: [value: string]}>();
-const historyList = ref<string[]>([]);
+const historyList = ref<Calculation[]>([]);
 const counterRef = ref<InstanceType<typeof Calculator> | null>(null);
+
 function handleChange(value: string) {
   emit('change', value);
 }
-function handleSubmit(operation: string, value?: string) {
-  const withResult = `${operation}${value ? ` = ${value}` : ''}`;
-  historyList.value.push(withResult);
-  handleChange(value || operation);
+function handleSubmit(value: string) {
+  handleChange(value);
+  if (counterRef?.value?.calculations) {
+    historyList.value = counterRef?.value?.calculations;
+  }
 }
 function handleClear() {
   counterRef?.value?.clear();
-}
-function handleDelete() {
-  counterRef?.value?.deleteLast();
 }
 </script>
 
@@ -26,14 +25,13 @@ function handleDelete() {
     <div class="container">
       <Calculator ref="counterRef" @submit="handleSubmit" @change="handleChange"  />
       <div class="display">
-        <div v-for="entry in historyList" :key="entry" class="display-entry">
-          {{ entry }}
+        <div v-for="{ operation, value } in historyList" :key="operation" class="display-entry">
+          <span>{{ operation }}</span><span v-if="value"> = {{ value }}</span>
         </div>
       </div>
     </div>
     <div class="footer">
       <button @click.prevent="handleClear" class="error">AC</button>
-      <button @click.prevent="handleDelete" class="error">DEL</button>
       <button>import</button>
       <button>export</button>
     </div>
@@ -60,7 +58,9 @@ function handleDelete() {
   box-sizing: border-box;
   margin-top: 10px;
   overflow-x: scroll;
+  overflow-y: auto;
   max-width: 200px;
+  min-width: 160px;
 }
 .display-entry {
   font-size: 13px;

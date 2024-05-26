@@ -1,2 +1,3 @@
 export { FORM_ID } from './constants';
-export { default as Calculator } from './Calculator.vue';
+export { type Calculation } from './types';
+export { default as Calculator } from './CalculatorForm.vue';
