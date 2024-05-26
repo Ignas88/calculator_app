@@ -19,7 +19,9 @@ watch(
 watch(
   () => counterRef?.value?.calculations,
   (calculations) => {
-    if (calculations?.length) historyList.value = calculations;
+    if (Array.isArray(calculations)) {
+      historyList.value = calculations;
+    }
   },
 );
 </script>
@@ -28,7 +30,7 @@ watch(
   <div>
     <div class="container">
       <Calculator ref="counterRef" />
-      <div>
+      <div class="display-container">
         <button @click.prevent="handleClearLastEntry" class="error small">{{ "&lt;--" }}</button>
         <div class="display">
           <div
@@ -41,7 +43,7 @@ watch(
         </div>
       </div>
     </div>
-    <div class="footer">
+    <div class="row">
       <button @click.prevent="handleClear" class="error">AC</button>
       <button>import</button>
       <button>export</button>
@@ -56,6 +58,9 @@ watch(
   align-items: flex-start;
   justify-content: space-between;
   width: 100%;
+}
+.display-container {
+  margin-top: 10px;
 }
 .display {
   height: 260px;
@@ -72,15 +77,25 @@ watch(
   display: flex;
   flex-direction: column-reverse;
   justify-content: flex-end;
+  margin-top: 10px;
 }
 .small {
   width: 100%;
-  margin: 10px 0 10px 0;
   font-size: 15px;
   height: 30px;
 }
 .display-entry {
   font-size: 13px;
   opacity: 0.8;
+}
+@media only screen and (max-width: 600px) {
+  .display-container {
+    width: 100%;
+    margin-top: 0;
+    margin-left: 16px;
+  }
+  .display {
+    width: 100%;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import {
   numbers, operators, FORM_ID, mathTestRegExp,
 } from './constants';
@@ -16,9 +16,7 @@ function clear() {
 }
 function clearLastEntry() {
   const lastIndex = calculations.value.length - 1;
-  const withoutLast = calculations.value.filter((_entry, index) => index !== lastIndex);
-  calculations.value = [...withoutLast];
-  display.value = withoutLast?.pop()?.value ?? '';
+  calculations.value = calculations.value.filter((_entry, index) => index !== lastIndex);
 }
 function clearLastChar() {
   display.value = display.value.slice(0, -1);
@@ -34,8 +32,13 @@ function handleSubmit() {
   // eslint-disable-next-line no-eval
   const value = `${eval(operation)}`;
   calculations.value = [...calculations.value, { operation, value }];
-  display.value = value;
 }
+watch(
+  () => calculations.value[calculations.value.length - 1],
+  (lastEntry: Calculation) => {
+    display.value = lastEntry?.value ?? '';
+  },
+);
 defineExpose({
   clear, clearLastEntry, display, calculations,
 });
@@ -76,19 +79,23 @@ defineExpose({
   flex-shrink: 0;
   flex-wrap: wrap;
   width: 184px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .operators{
   display: flex;
   flex-direction: column;
 }
 
-@media only screen and (max-width: 426px) {
-  button {
-    font-size: 18px !important;
-  }
+@media only screen and (max-width: 600px) {
   .calculator {
-    max-width: 260px !important;
+    flex-direction: column;
+    height: auto;
+  }
+  .operators {
+    flex-direction: row;
+    width: 200%;
+    justify-content: space-between;
+    margin-top: -10px;
   }
 }
 </style>

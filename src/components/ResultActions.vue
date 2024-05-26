@@ -11,7 +11,7 @@ function handleChange(value: string) {
 
 <template>
   <div class="container">
-    <div class="footer">
+    <div class="row">
       <button :form="FORM_ID" type="submit" class="primary">
         =
       </button>
@@ -27,11 +27,8 @@ function handleChange(value: string) {
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-}
-.footer {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 .display {
   height: 56px;
@@ -85,9 +82,18 @@ button.primary {
 button.error {
   color: #e76f51;
 }
-.footer {
+.row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: -10px;
+}
+@media only screen and (max-width: 600px) {
+  button {
+    font-size: 18px;
+  }
+  .calculator {
+    width: 50%;
+  }
 }
 </style>
