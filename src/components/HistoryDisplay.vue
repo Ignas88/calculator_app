@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Calculator, type Calculation } from './calculator';
 
 const emit = defineEmits<{change: [value: string]}>();
@@ -9,23 +9,34 @@ const counterRef = ref<InstanceType<typeof Calculator> | null>(null);
 function handleChange(value: string) {
   emit('change', value);
 }
-function handleSubmit(value: string) {
-  handleChange(value);
-  if (counterRef?.value?.calculations) {
-    historyList.value = counterRef?.value?.calculations;
+function handleSubmit(calculations: Calculation[]) {
+  if (calculations.length > 0) {
+    historyList.value = calculations;
   }
 }
 function handleClear() {
   counterRef?.value?.clear();
 }
+watch(
+  () => counterRef?.value?.display,
+  (value) => handleChange(value || ''),
+);
+watch(
+  () => counterRef?.value?.calculations,
+  (calculations) => calculations?.length && handleSubmit(calculations),
+);
 </script>
 
 <template>
   <div>
     <div class="container">
-      <Calculator ref="counterRef" @submit="handleSubmit" @change="handleChange"  />
+      <Calculator ref="counterRef" />
       <div class="display">
-        <div v-for="{ operation, value } in historyList" :key="operation" class="display-entry">
+        <div
+            v-for="{ operation, value } in historyList"
+            :key="operation"
+            class="display-entry"
+        >
           <span>{{ operation }}</span><span v-if="value"> = {{ value }}</span>
         </div>
       </div>
@@ -48,7 +59,7 @@ function handleClear() {
 }
 .display {
   height: 320px;
-  width: 100%;
+  width: 160px;
   font-size: 20px;
   text-align: left;
   padding: 10px;
@@ -59,8 +70,9 @@ function handleClear() {
   margin-top: 10px;
   overflow-x: scroll;
   overflow-y: auto;
-  max-width: 200px;
-  min-width: 160px;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
 }
 .display-entry {
   font-size: 13px;

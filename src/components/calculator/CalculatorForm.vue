@@ -7,37 +7,30 @@ import { type Calculation } from './types';
 
 const display = ref('');
 const calculations = ref<Calculation[]>([]);
-const emit = defineEmits<{change: [value: string], submit: [value: string]}>();
-function update(value: string|number) {
+
+function update(value: string) {
   display.value += value;
-  emit('change', display.value);
 }
 function clear() {
   display.value = '';
-  emit('change', display.value);
 }
-function clearLast() {
+function clearLastChar() {
   display.value = display.value.slice(0, -1);
-  emit('change', display.value);
 }
 function handleSubmit() {
   const operation = display.value;
-  let value = null;
   const isWithOperator = operators.some((operator) => operation.includes(operator));
   if (!isWithOperator) {
-    calculations.value.push({ operation, value });
-    emit('submit', operation);
     return;
   }
   const isValidMathExpression = mathTestRegExp.test(operation);
   if (!isValidMathExpression) return;
   // eslint-disable-next-line no-eval
-  value = `${eval(operation)}`;
-  calculations.value.push({ operation, value });
-  emit('submit', value);
-  display.value = '';
+  const value = `${eval(operation)}`;
+  calculations.value = [...calculations.value, { operation, value }];
+  display.value = value;
 }
-defineExpose({ clear, calculations });
+defineExpose({ clear, display, calculations });
 </script>
 
 <template>
@@ -50,7 +43,7 @@ defineExpose({ clear, calculations });
       >
         {{ value }}
       </button>
-      <button @click.prevent="clearLast" class="error">DEL</button>
+      <button @click.prevent="clearLastChar" class="error">DEL</button>
     </div>
     <div class="operators">
       <button
