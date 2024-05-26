@@ -14,3 +14,4 @@ export const numbers = [
 ];
 export const operators = ['-', '+', '*', '/'];
 export const mathTestRegExp = /(?:(?:^|[-+_*/])(?:\s*-?\d+(\.\d+)?(?:[eE][+-]?\d+)?\s*))+$/;
+export const CSV_TYPE = 'text/csv';

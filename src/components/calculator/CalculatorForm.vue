@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import Papa from 'papaparse';
 import {
-  numbers, operators, FORM_ID, mathTestRegExp,
+  numbers, operators, FORM_ID, CSV_TYPE,
 } from './constants';
 import { type Calculation } from './types';
-import { download } from './utils';
+import {
+  download, isWithOperator, isValidMathExpression,
+} from './utils';
 
 const display = ref('');
 const calculations = ref<Calculation[]>([]);
+const inputRef = ref<InstanceType<typeof HTMLInputElement> | null>(null);
 
 function update(value: string) {
   display.value += value;
@@ -24,12 +28,10 @@ function clearLastChar() {
 }
 function submit() {
   const operation = display.value;
-  const isWithOperator = operators.some((operator) => operation.includes(operator));
-  if (!isWithOperator) {
+  if (!isWithOperator(operation)) {
     return;
   }
-  const isValidMathExpression = mathTestRegExp.test(operation);
-  if (!isValidMathExpression) return;
+  if (!isValidMathExpression(operation)) return;
   // eslint-disable-next-line no-eval
   const value = `${eval(operation)}`;
   calculations.value = [...calculations.value, { operation, value }];
@@ -38,7 +40,39 @@ function exportCalculations() {
   download(calculations.value);
 }
 function importCalculations() {
-
+  // eslint-disable-next-line no-alert
+  alert('import csv. Columns: [operation][value]');
+  inputRef?.value?.click();
+}
+async function handleChange(e: Event) {
+  const target = e.target as HTMLInputElement;
+  if (!target.files) return;
+  const file = target.files[0];
+  if (file.type !== CSV_TYPE) {
+    // eslint-disable-next-line no-alert
+    alert('wrong file type - choose .csv file');
+    return;
+  }
+  Papa.parse<Calculation>(file, {
+    header: true,
+    skipEmptyLines: true,
+    step: (results) => {
+      if (results.errors.length) {
+        console.error('Errors while parsing:', results.errors);
+      }
+      const row = results.data;
+      if ('operation' in row) {
+        const { operation } = row;
+        if (!isWithOperator(operation)) {
+          return;
+        }
+        if (!isValidMathExpression(operation)) return;
+        // eslint-disable-next-line no-eval
+        const value = row.value ?? `${eval(operation)}`;
+        calculations.value = [...calculations.value, { operation, value }];
+      }
+    },
+  });
 }
 watch(
   () => calculations.value[calculations.value.length - 1],
@@ -52,33 +86,29 @@ defineExpose({
 </script>
 
 <template>
-  <div>
-    <form :id="FORM_ID" class="calculator" @submit.prevent="submit">
-      <div class="numbers">
-        <button
-            v-for="{ value } in numbers"
-            :key="value"
-            @click.prevent="update(value)"
-        >
-          {{ value }}
-        </button>
-        <button @click.prevent="clearLastChar" class="error">DEL</button>
-      </div>
-      <div class="operators">
-        <button
-            v-for="value in operators"
-            :key="value"
-            @click.prevent="update(value)"
-            class="primary"
-        >
-          {{ value }}
-        </button>
-      </div>
-    </form>
-    <div>
-
+  <form :id="FORM_ID" class="calculator" @submit.prevent="submit">
+    <div class="numbers">
+      <button
+          v-for="{ value } in numbers"
+          :key="value"
+          @click.prevent="update(value)"
+      >
+        {{ value }}
+      </button>
+      <button @click.prevent="clearLastChar" class="error">DEL</button>
     </div>
-  </div>
+    <div class="operators">
+      <button
+          v-for="value in operators"
+          :key="value"
+          @click.prevent="update(value)"
+          class="primary"
+      >
+        {{ value }}
+      </button>
+    </div>
+    <input @change="handleChange" style="display: none" ref="inputRef" type="file">
+  </form>
 </template>
 
 <style scoped>

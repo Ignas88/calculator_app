@@ -53,13 +53,20 @@ watch(
       </div>
     </div>
     <div class="row">
-      <button @click.prevent="handleImport">import</button>
-      <button @click.prevent="handleExport">export</button>
+      <button class="small" @click.prevent="handleImport">
+        import <span style="font-size: 9px; display: contents">.csv</span>
+      </button>
+      <button class="small" @click.prevent="handleExport">
+        export <span style="font-size: 9px; display: contents">.csv</span>
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
+.aib {
+  align-items: baseline;
+}
 .container {
   display: flex;
   flex-direction: row;
